@@ -8,18 +8,17 @@ public class PlayerCharacter : MonoBehaviour
     Rigidbody2D rig2d;
     [SerializeField]
     Animator anim;
-    [SerializeField]
-    Transform checkPoint;
+    
+    public Transform checkPoint;
 
     float curSpeed = 3f;
     float maxSpeed = 5f;
-    float jumpHeight = 350f;
+    float jumpSpeed = 10f;
     bool isFacingRight = true;
     bool isGrounded = true;
 
     float checkDistance = 0.05f;
 
-    int hitCount = 0;
     public bool isDead = false;
 
     LayerMask groundLayer;
@@ -64,10 +63,10 @@ public class PlayerCharacter : MonoBehaviour
             Jump();
         }
 
-        if(!isDead)
-        {
-            CheckHit();
-        }
+        //if(!isDead)
+        //{
+        //    CheckHit();
+        //}
     }
 
     void Init()
@@ -104,7 +103,8 @@ public class PlayerCharacter : MonoBehaviour
 
     void Jump()
     {
-        rig2d.AddForce(new Vector2(0, jumpHeight));
+        //rig2d.AddForce(new Vector2(0, jumpHeight));
+        rig2d.velocity = new Vector2(rig2d.velocity.x, jumpSpeed);
     }
 
     void CheckIsGrounded()
@@ -124,34 +124,34 @@ public class PlayerCharacter : MonoBehaviour
         }
     }
 
-    void CheckHit()
-    {
-        var check = checkPoint.position;
-        var hit = Physics2D.OverlapCircle(check, 0.07f, enemyLayer.value);
+    //void CheckHit()
+    //{
+    //    var check = checkPoint.position;
+    //    var hit = Physics2D.OverlapCircle(check, 0.07f, enemyLayer.value);
 
-        if (hit != null)
-        {
-            if (hit.CompareTag("Normal")) //若踩中普通怪物，则给予玩家一个反弹力，并触发怪物的死亡效果
-            {
-                Debug.Log("Hit Normal!");
-                rig2d.velocity = new Vector2(rig2d.velocity.x, 5f);
-                hit.GetComponentInParent<EnemyCharacter>().isHit = true;
-            }
-            else if (hit.CompareTag("Special")) //若踩中特殊怪物（乌龟），则在敌人相关代码中做对应变化
-            {
-                hitCount += 1;
-                if (hitCount == 1)
-                {
-                    rig2d.velocity = new Vector2(rig2d.velocity.x, 5f);
-                    hit.GetComponentInParent<EnemyCharacter>().GetHit(1);
-                }
-            }
-        }
-    }
+    //    if (hit != null)
+    //    {
+    //        if (hit.CompareTag("Normal")) //若踩中普通怪物，则给予玩家一个反弹力，并触发怪物的死亡效果
+    //        {
+    //            Debug.Log("Hit Normal!");
+    //            rig2d.velocity = new Vector2(rig2d.velocity.x, 5f);
+    //            hit.GetComponentInParent<EnemyCharacter>().isHit = true;
+    //        }
+    //        else if (hit.CompareTag("Special")) //若踩中特殊怪物（乌龟），则在敌人相关代码中做对应变化
+    //        {
+    //            hitCount += 1;
+    //            if (hitCount == 1)
+    //            {
+    //                rig2d.velocity = new Vector2(rig2d.velocity.x, 5f);
+    //                hit.GetComponentInParent<EnemyCharacter>().GetHit(1);
+    //            }
+    //        }
+    //    }
+    //}
 
-    public void InitCount()
+    public void InitHitState()
     {
-        hitCount = 0;
+        
     }
 
     public void Die()
@@ -160,5 +160,10 @@ public class PlayerCharacter : MonoBehaviour
         isDead = true;
         playerAnim.SetTrigger("Die");
         rig2d.velocity = new Vector2(0, 0);
+    }
+
+    public void Bounce()
+    {
+        rig2d.velocity = new Vector2(rig2d.velocity.x, 5f);
     }
 }

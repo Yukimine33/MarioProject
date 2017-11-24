@@ -87,7 +87,7 @@ public class EnemyCharacter : MonoBehaviour
 
         if (!_player.isDead && !isHit && !isDead)
         {
-            CheckBorder();
+            //CheckBorder();
             CheckCharacter();
             Move();
         }
@@ -202,7 +202,7 @@ public class EnemyCharacter : MonoBehaviour
         { shellMoveDir.x *= -1; }
     }
 
-    public void GetHit(int rStage)
+    public void GetHit(int rState)
     {
         if(charType == EnemyType.Turtle)
         {
@@ -217,10 +217,11 @@ public class EnemyCharacter : MonoBehaviour
             isShellMove = false;
             isShellAttack = false;
             isOnTrigger = false;
-            _player.InitCount();
+            _player.InitHitState();
         }
 
-        StartCoroutine("OnRecover");
+        if (rState == 1)
+        { StartCoroutine("OnRecover"); }
     }
 
     IEnumerator OnRecover()
@@ -249,7 +250,7 @@ public class EnemyCharacter : MonoBehaviour
         isOnTrigger = false;
         _dieTrigger.gameObject.SetActive(true);
         charType = EnemyType.Turtle;
-        _player.InitCount();
+        _player.InitHitState();
     }
 
     void CheckTrigger()
@@ -301,7 +302,7 @@ public class EnemyCharacter : MonoBehaviour
         if(distance > 1f)
         {
             _dieTrigger.gameObject.SetActive(true);
-            _player.InitCount();
+            _player.InitHitState();
             isCheck = false;
         }
     }
@@ -339,6 +340,35 @@ public class EnemyCharacter : MonoBehaviour
         foreach(var child in tempTrans)
         {
             child.enabled = false;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            CheckPlayerPos();
+        }
+        else if(collision.CompareTag("Border"))
+        {
+            Debug.Log("Get in");
+            ChangeMoveDir();
+        }
+    }
+
+    void CheckPlayerPos()
+    {
+        var playerPos = _player.checkPoint.position;
+        var curPos = transform.position;
+
+        if (playerPos.y - curPos.y > 0)
+        {
+            isHit = true;
+            _player.Bounce();
+        }
+        else
+        {
+            _player.Die();
         }
     }
 }
